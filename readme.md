@@ -16,7 +16,7 @@ This utility provides a convenient way to transform date formats within a text f
 2. Download the utility.
 3. Open your terminal or command prompt.
 4. Navigate to the directory containing the utility.
-5. Execute the function using Node.js.
+5. Execute the function with the command `node transformDates 'path/to/file' 'source' 'destination'` where source and destination are supported patterns.
 
 #### Date Patterns Supported:
 

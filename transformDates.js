@@ -25,6 +25,7 @@ async function writeToFile(filePath, content) {
 }
 
 function convertPatternToRegex(pattern) {
+    // creates a regex instance based on the source pattern argument
     const tokenPatterns = {
         'yyyy': '(?<year4>\\d{4})',
         'yy': '(?<year2>\\d{2})',
@@ -47,7 +48,7 @@ function convertPatternToRegex(pattern) {
 }
 
 function convertStringToDate(match) {
-    // Extract year, month, and day
+    // Extract year, month, and day from dates matching the regex
     let year = match.groups.year4 || match.groups.year2
     if (year.length === 2) {
         year = parseInt(year, 10) < 50 ? '20' + year : '19' + year // Simple 2-digit year heuristic
@@ -67,6 +68,7 @@ function convertStringToDate(match) {
 
 
 function convertDateToString(match, date, destinationPattern) {
+    // uses the generated regex to find all the matching dates in the ingested file
     const monthNamesAbbr = monthNames.map(name => name.substring(0, 3))
     
     const dayNamesFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -89,6 +91,7 @@ function convertDateToString(match, date, destinationPattern) {
 }
 
 function transformDatesInText(inputText, sourcePattern, destinationPattern) {
+    // In the real world, this would rely on significantly fewer helpers, as I'd use a library like moment.js
     const sourcePatternRegex = convertPatternToRegex(sourcePattern)
     const patternMatches = [...inputText.matchAll(sourcePatternRegex)]
     const originalDateStrings = patternMatches.map(match => match[0])
@@ -98,6 +101,7 @@ function transformDatesInText(inputText, sourcePattern, destinationPattern) {
     })
 
     let outputText = inputText
+    //loops through the transformed date strings and updates the original text with them
     for (let i = 0; i < transformedDateStrings.length; i++) {
         const originalDateString = originalDateStrings[i]
         const transformedDateString = transformedDateStrings[i]
@@ -110,11 +114,14 @@ function transformDatesInText(inputText, sourcePattern, destinationPattern) {
 async function transformDates(filePath, sourcePattern, destinationPattern) {
     const inputText = await loadFile(filePath)
     outputText = transformDatesInText(inputText, sourcePattern, destinationPattern)
+    console.log({inputText, outputText})
+
     await writeToFile(filePath, outputText)
     return outputText
 }
 
-if (require.main === module) {  // Check if the script is being run directly
+// Code block to let you call the function directly from the command line without requiring the module
+if (require.main === module) {  
     const [,, filePath, sourcePattern, destinationPattern] = process.argv;
 
     if (!filePath || !sourcePattern || !destinationPattern) {
